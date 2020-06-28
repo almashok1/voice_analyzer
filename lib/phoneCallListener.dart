@@ -10,10 +10,8 @@ import 'package:path/path.dart' as path;
 class PhoneCallListener {
   static int id;
   static final ApiConnection _apiConnection = ApiConnection();
-  static final UserRepository _userRepository = UserRepository();
-
+  
   static void listenPhoneCallState() async {
-    if (await _userRepository.isAuthorized()) {
       phoneStateCallEvent.listen((event) {
         print(event.stateC);
         if (event.stateC == 'true')
@@ -22,14 +20,14 @@ class PhoneCallListener {
           _stopForListen();
         }
       });
-    }
   }
 
   static void _startForListen() async {
     if (await AudioRecorder.hasPermissions) {
       final externalPath = await getExternalStorageDirectory();
-      final directory = await (Directory(
-              path.join(externalPath.path,'${await UserRepository.getUserName()}'))).create();
+      final directory = await (Directory(path.join(
+              externalPath.path, '${await UserRepository.getUserName()}')))
+          .create();
       String pathN = path.join(directory.path, (createRecordPath()));
       bool isRecording = await AudioRecorder.isRecording;
       if (!isRecording)
@@ -45,7 +43,9 @@ class PhoneCallListener {
     if (isRecording) {
       var recording = await AudioRecorder.stop();
       Future.delayed(Duration(seconds: 2));
-      await _apiConnection.sendToBackEnd(recording.path).catchError((_) {});
+      await _apiConnection.sendToBackEnd(recording.path).catchError((e) {
+        print(e);
+      });
     }
   }
 }

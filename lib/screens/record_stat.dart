@@ -25,7 +25,7 @@ class _RecordStatState extends State<RecordStat> {
     super.dispose();
   }
 
-  Widget _btn(String txt, VoidCallback onPressed) {
+  Widget _btn(Icon icon, VoidCallback onPressed) {
     return ButtonTheme(
       minWidth: 48.0,
       child: Container(
@@ -36,7 +36,7 @@ class _RecordStatState extends State<RecordStat> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(25),
             ),
-            child: Text(txt),
+            child: icon,
             color: Theme.of(context).buttonColor,
             textColor: Colors.white,
             onPressed: onPressed),
@@ -54,7 +54,7 @@ class _RecordStatState extends State<RecordStat> {
         },
         child: Scaffold(
           backgroundColor: Theme.of(context).backgroundColor,
-          appBar: AppBar(title: Text("Record Stats")),
+          appBar: AppBar(title: Text("Статистика записей")),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
@@ -67,10 +67,10 @@ class _RecordStatState extends State<RecordStat> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         _btn(
-                            'Play',
+                            Icon(Icons.play_circle_outline),
                             () => audioEmoji.advancedPlayer
                                 .play(widget.filePath)),
-                        _btn('Pause', () => audioEmoji.advancedPlayer.pause()),
+                        _btn(Icon(Icons.pause_circle_outline), () => audioEmoji.advancedPlayer.pause()),
                       ],
                     ),
                     Center(

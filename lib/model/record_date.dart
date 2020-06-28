@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:voice_analyzer/model/emojis_model.dart';
-import 'package:voice_analyzer/util/utils.dart';
 
 class RecordDate extends ChangeNotifier {
   List<EmojisModel> _emotionData = [];
@@ -16,6 +15,16 @@ class RecordDate extends ChangeNotifier {
   List<String> filteredRecordList = [];
   DateTime _firstDate = DateTime.now();
   DateTime _lastDate;
+
+
+  GlobalKey one = GlobalKey();
+  GlobalKey two = GlobalKey();
+  GlobalKey three = GlobalKey();
+  GlobalKey four = GlobalKey();
+  GlobalKey five = GlobalKey();
+  GlobalKey six = GlobalKey();
+  GlobalKey seven = GlobalKey();
+  GlobalKey eight = GlobalKey();
 
   set emotionData(List<EmojisModel> list) {
     _emotionData = list;

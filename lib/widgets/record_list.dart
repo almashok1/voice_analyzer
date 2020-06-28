@@ -59,7 +59,7 @@ class RecordList extends StatelessWidget {
                           body: Container(
                             color: Theme.of(context).backgroundColor,
                             child: Center(
-                              child: Text("No Data Yet"),
+                              child: Text("Данных пока нет"),
                             ),
                           ),
                         );
@@ -76,7 +76,7 @@ class RecordList extends StatelessWidget {
                   ),
                 );
               },
-              child: Text("More"),
+              child: Text("Анализ"),
             ),
           ),
         ],

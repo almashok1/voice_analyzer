@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:voice_analyzer/api/api_connection.dart';
 import 'package:voice_analyzer/model/emojis_model.dart';
-import 'package:voice_analyzer/repository/user_repository.dart';
 
 part 'emojis_event.dart';
 part 'emojis_state.dart';

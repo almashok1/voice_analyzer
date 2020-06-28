@@ -31,7 +31,6 @@ class SimpleBlocDelegate extends BlocDelegate {
 int id;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  BlocSupervisor.delegate = SimpleBlocDelegate();
   final userRepository = UserRepository();
   id = await UserRepository.getId();
   runApp(
@@ -45,6 +44,7 @@ void main() async {
   );
 
   print(id);
+
   var channel = const MethodChannel('com.example/background_service');
   var callbackHandle = PluginUtilities.getCallbackHandle(backgroundMain);
   var callback =

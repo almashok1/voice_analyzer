@@ -9,7 +9,6 @@ class EmotionData {
 
   EmotionData.fromJson(Map<String, dynamic> json) {
     emotionData = [];
-    print(json);
     Iterable it =  json.values;
     it.forEach((element) {
       final split = element.split(":");

@@ -30,7 +30,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
       try {
         if (event.username.isEmpty || event.email.isEmpty || event.password.isEmpty)
-          throw Exception('Empty form');
+          throw Exception('Пустая форма');
         await userRepository.createUser(
           username: event.username,
           password: event.password,
@@ -44,7 +44,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         authenticationBloc.add(LoggedIn(user: user));
         yield RegisteredSuccesfully();
       } catch (e) {
-        yield RegisterFailure(error: e.toString());
+        yield RegisterFailure(error: 'Не удалось зарегистрировать');
       }
     }
   }

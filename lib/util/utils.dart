@@ -1,5 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:voice_analyzer/model/record_date.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+
+final Map<String, String> emotionTranslate = {
+  "anger": "злой",
+  "scared": "испуганный",
+  "happy": "веселый",
+  "sadness": "печальный",
+  "neutral": "нейтральный",
+  "disgust": "отвращение",
+  "surprised": "удивленный",
+};
+
+Future<Map<Permission, PermissionStatus>> askForPermissions() async {
+    return await [Permission.microphone, Permission.storage].request();
+}
 
 bool filterDates(String dateToFilter, RecordDate recordDate) {
   List<String> splitted = dateToFilter.split('_')[0].split('-');
@@ -12,7 +28,7 @@ bool filterDates(String dateToFilter, RecordDate recordDate) {
 }
 
 String dateToNormalString(DateTime date) {
- return  "${placeZeroIfNeeded(date.day)}.${placeZeroIfNeeded(date.month)}.${date.year}";
+  return "${placeZeroIfNeeded(date.day)}.${placeZeroIfNeeded(date.month)}.${date.year}";
 }
 
 void showErrorAlertDialog(BuildContext context) {
@@ -20,8 +36,8 @@ void showErrorAlertDialog(BuildContext context) {
     context: context,
     child: AlertDialog(
       backgroundColor: Theme.of(context).primaryColor,
-      title: Text("Error"),
-      content: Text("Failed to load data"),
+      title: Text("Ошибка"),
+      content: Text("Не удалось загрузить данные"),
     ),
   );
 }

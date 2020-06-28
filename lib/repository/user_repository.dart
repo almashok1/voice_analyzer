@@ -12,16 +12,30 @@ class UserRepository {
 
   UserRepository._internal();
 
-  static Future<SharedPreferences> _sharedPreferences = SharedPreferences.getInstance();
-  
+  static Future<SharedPreferences> _sharedPreferences =
+      SharedPreferences.getInstance();
+
   Future<bool> isAuthorized() async {
     final sp = await _sharedPreferences;
     bool contains = sp.containsKey('user_name') && sp.containsKey('password');
-    print(sp.getString('user_name'));
-    if (contains && sp.getString('user_name')!=null)
+    if (contains && sp.getString('user_name') != null)
       return Future.value(true);
-    else 
+    else
       return Future.value(false);
+  }
+
+  static Future<bool> isFirstOpened() async {
+    final sp = await _sharedPreferences;
+    bool contains = sp.containsKey('isFirstOpened');
+    if ((contains && sp.getBool('isFirstOpened') != null) || sp.getBool('isFirstOpened') == false)
+      return false;
+    else
+      return true;
+  }
+
+  static void setFirstOpened(bool b) async {
+    final sp = await _sharedPreferences;
+    sp.setBool('isFirstOpened', b);
   }
 
   Future<void> saveUser({@required User user}) async {
@@ -37,7 +51,8 @@ class UserRepository {
     return sp.clear();
   }
 
-  Future<void> createUser({String username, String password, String email}) async {
+  Future<void> createUser(
+      {String username, String password, String email}) async {
     ApiConnection _api = ApiConnection();
     _api.createUser(username: username, password: password, email: email);
     await Future.delayed(const Duration(seconds: 2));
@@ -45,14 +60,15 @@ class UserRepository {
 
   Future<User> authenticate({String username, String password}) async {
     ApiConnection _api = ApiConnection();
-    print('THISSSS IS AUTHENTICATE');
-    final responseData = await _api.getUser(username: username, password: password);
-    print(responseData);
-
+    final responseData =
+        await _api.getUser(username: username, password: password);
     if (responseData is int) {
-      return User(id: responseData, username: username, password: password, email: 'emailTest');
-    }
-    else {
+      return User(
+          id: responseData,
+          username: username,
+          password: password,
+          email: 'emailTest');
+    } else {
       throw Exception('Invalid user');
     }
   }
@@ -74,7 +90,7 @@ class UserRepository {
     String password = sp.getString('password');
     String email = sp.getString('email');
 
-    return User(id: id, username:  username, password: password, email: email);
+    return User(id: id, username: username, password: password, email: email);
   }
 
   static Future<String> getUserName() async {
@@ -83,5 +99,4 @@ class UserRepository {
 
     return username;
   }
-  
 }

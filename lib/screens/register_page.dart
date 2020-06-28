@@ -27,7 +27,7 @@ class RegisterPage extends StatelessWidget {
             _onPressed(context);
           },
         ),
-        title: Text('Register Page'),
+        title: Text('Регистрация'),
       ),
       body: BlocProvider(
         create: (context) {

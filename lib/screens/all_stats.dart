@@ -40,7 +40,7 @@ class _AllStatsState extends State<AllStats>
         return Scaffold(
           backgroundColor: Theme.of(context).backgroundColor,
           appBar: AppBar(
-            title: Text("Statistics"),
+            title: Text("Статистика"),
             bottom: TabBar(
               controller: _tabController,
               tabs: <Widget>[
@@ -60,7 +60,7 @@ class _AllStatsState extends State<AllStats>
                                 Expanded(
                                   flex: 2,
                                   child: Container(
-                                      child: Center(child: Text("FROM"))),
+                                      child: Center(child: Text("С"))),
                                 ),
                                 Expanded(
                                   flex: 4,
@@ -77,7 +77,7 @@ class _AllStatsState extends State<AllStats>
                                 Expanded(
                                   flex: 2,
                                   child: Container(
-                                      child: Center(child: Text("TO"))),
+                                      child: Center(child: Text("ДО"))),
                                 ),
                                 Expanded(
                                   flex: 4,
@@ -93,7 +93,7 @@ class _AllStatsState extends State<AllStats>
                 ),
                 Tab(
                   child: Text(
-                    "All",
+                    "За все время",
                     style: TextStyle(fontSize: 18.0),
                   ),
                 )
@@ -163,14 +163,25 @@ class _AllStatsState extends State<AllStats>
             decoration: BoxDecoration(
               color: mostEmoji == "" ? Colors.grey : map[mostEmoji],
               boxShadow: [
-                BoxShadow(blurRadius: 10.0, color: mostEmoji == "" ? Colors.grey : map[mostEmoji]),
+                BoxShadow(
+                    blurRadius: 10.0,
+                    color: mostEmoji == "" ? Colors.grey : map[mostEmoji]),
               ],
             ),
             child: Center(
               child: Text(
-                mostEmoji == "" ? "No records" : "You are mostly $mostEmoji",
-                style: TextStyle(fontSize: 24.0, color: mostEmoji == "" ? Theme.of(context).primaryColor : Theme.of(context).textSelectionColor)
-              ),
+                  mostEmoji == ""
+                      ? "Нет записей"
+                      : "Вы в основном " +
+                          (mostEmoji == 'disgust'
+                              ? 'чувствуете ${emotionTranslate[mostEmoji]}'
+                              : emotionTranslate[mostEmoji]),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 24.0,
+                      color: mostEmoji == ""
+                          ? Theme.of(context).primaryColor
+                          : Theme.of(context).textSelectionColor)),
             ),
           ),
         ),
@@ -197,8 +208,12 @@ class _AllStatsState extends State<AllStats>
   }
 
   Widget _buildPieChart(Map<String, double> percentages) {
+    Map<String, double> translated = {};
+    percentages.forEach((key, value) {
+      translated.putIfAbsent(emotionTranslate[key], () => value);
+    });
     return PieChart(
-      dataMap: percentages,
+      dataMap: translated,
       animationDuration: Duration(milliseconds: 800),
       chartLegendSpacing: 32.0,
       chartRadius: MediaQuery.of(context).size.width / 2.0,

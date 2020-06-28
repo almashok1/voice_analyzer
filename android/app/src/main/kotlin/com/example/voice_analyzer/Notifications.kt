@@ -29,8 +29,8 @@ object Notifications {
         return NotificationCompat
                 .Builder(context, CHANNEL_ID_BACKGROUND_SERVICE)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Voice recording")
-                .setContentText("Listening phone call states")
+                .setContentTitle("Voice Analyzer")
+                .setContentText("Запись раговора при вызовах")
                 .build()
     }
 }

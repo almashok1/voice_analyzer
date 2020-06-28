@@ -18,7 +18,7 @@ class LoginPage extends StatelessWidget {
       backgroundColor: Theme.of(context).backgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: Text('Login Page'),
+        title: Text('Вход'),
       ),
       body: BlocProvider(
         create: (context) {

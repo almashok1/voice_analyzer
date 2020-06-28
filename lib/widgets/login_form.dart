@@ -4,7 +4,6 @@ import 'package:voice_analyzer/blocs/authentication_bloc/authentication_bloc.dar
 import 'package:voice_analyzer/blocs/login_bloc/login_bloc.dart';
 import 'package:voice_analyzer/blocs/register_bloc/register_bloc.dart';
 import 'package:voice_analyzer/repository/user_repository.dart';
-import 'package:voice_analyzer/screens/register_page.dart';
 
 class LoginForm extends StatefulWidget {
   final UserRepository userRepository;
@@ -41,21 +40,6 @@ class _LoginFormState extends State<LoginForm> {
 
     _pushToRegisterPage() {
       BlocProvider.of<AuthenticationBloc>(context).add(SwapToRegister());
-      // print(context);
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Navigator.of(context).pushReplacement(
-      //   MaterialPageRoute(
-      //     builder: (context) => BlocProvider<RegisterBloc>(
-      //       create: (context) {
-      //         return registerBloc;
-      //       },
-      //       child: RegisterPage(
-      //         userRepository: widget.userRepository,
-      //       ),
-      //     ),
-      //   ),
-      // );
-      // });
     }
 
     return BlocListener<LoginBloc, LoginState>(
@@ -86,12 +70,12 @@ class _LoginFormState extends State<LoginForm> {
                     TextFormField(
                       validator: (value) {
                         if (value.isEmpty) {
-                          return 'Enter some text';
+                          return 'Введите логин';
                         }
                         return null;
                       },
                       decoration: InputDecoration(
-                        labelText: 'username',
+                        labelText: 'имя пользователя',
                         icon: Icon(Icons.person),
                       ),
                       controller: _usernameController,
@@ -99,12 +83,12 @@ class _LoginFormState extends State<LoginForm> {
                     TextFormField(
                       validator: (value) {
                         if (value.isEmpty) {
-                          return 'Enter some text';
+                          return 'Введите пароль';
                         }
                         return null;
                       },
                       decoration: InputDecoration(
-                          labelText: 'password', icon: Icon(Icons.lock)),
+                          labelText: 'пароль', icon: Icon(Icons.lock)),
                       controller: _passwordController,
                       obscureText: true,
                     ),
@@ -122,7 +106,7 @@ class _LoginFormState extends State<LoginForm> {
                               _pushToRegisterPage();
                             },
                             child: Text(
-                              'Register',
+                              'Регистрировать',
                               style: TextStyle(
                                 fontSize: 16.0,
                               ),

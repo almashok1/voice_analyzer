@@ -31,7 +31,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       try {
         if (event.username.isEmpty || event.password.isEmpty)
-          throw Exception('Empty form');
+          throw Exception('Пустая форма');
         final user = await userRepository.authenticate(
           username: event.username,
           password: event.password,
@@ -39,7 +39,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
         authenticationBloc.add(LoggedIn(user: user));
       } catch (e) {
-        yield LoginFailure(error: e.toString());
+        yield LoginFailure(error: 'Не удалось войти, проверьте введенные данные');
       }
     }
   }

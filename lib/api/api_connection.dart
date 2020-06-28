@@ -1,7 +1,4 @@
 import 'dart:io';
-import 'dart:math';
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:voice_analyzer/model/emojis_model.dart';
 import 'package:voice_analyzer/repository/user_repository.dart';
@@ -9,8 +6,7 @@ import 'package:voice_analyzer/repository/user_repository.dart';
 class ApiConnection {
   static final ApiConnection _apiConnection = ApiConnection._internal();
   static final Dio _dio = Dio();
-  static String _url = "PRIVATE_IP";
-  static var myRandom = 0;
+  static String _url = "http://95.56.249.38:8011";
 
   factory ApiConnection() {
     _dio.options.headers['Content-Type'] = 'application/json';
@@ -62,35 +58,31 @@ class ApiConnection {
       );
       if (response.data['sucsess'].toString() == '200') {
         await putRecord(fileName, path).catchError((e) {
-          throw Exception(e.toString());
+          throw e;
         });
         return true;
       } else {
         File file = File(path);
         file.deleteSync();
-        throw Exception('Failed to load record');
+        throw Exception('Не удалось загрузить запись');
       }
-    } on DioError catch (e) {
+    } on DioError {
       File file = File(path);
       await file.delete().catchError((_) {});
-      throw Exception("Network error");
+      throw Exception("Ошибка сети");
     } on Exception catch (e) {
-      print("INSIDE SEND TO BACKEND1 $e");
       File file = File(path);
       await file.delete().catchError((_) {});
       throw e;
     } catch (e) {
-      print("INSIDE SEND TO BACKEND2 $e");
       File file = File(path);
       await file.delete().catchError((_) {});
-      throw Exception("FAILED TO LOAD");
+      throw Exception("Ошибка загрузки");
     }
   }
 
   Future<void> putRecord(String filename, String path) async {
     String pref = "/record";
-    Random r = Random();
-    myRandom = r.nextInt(10000);
 
     final data = {"name": filename, "user": await UserRepository.getId()};
     try {
@@ -98,20 +90,18 @@ class ApiConnection {
       if (response.statusCode != 200) {
         File file = File(path);
         file.deleteSync();
-        throw Exception('Failed to load record');
+        throw Exception('Не удалось загрузить запись');
       }
       if (response.data.toString().contains('error'))
-        throw Exception('Error predicting');
+        throw Exception('Ошибка прогнозирования');
     } on Exception catch (e) {
-      print("INSIDE PUT RECORD1 $e");
       File file = File(path);
       await file.delete().catchError((_) {});
       throw e;
     } catch (e) {
-      print("INSIDE PUT RECORD2 $e");
       File file = File(path);
       await file.delete().catchError((_) {});
-      throw Exception("FAILED TO LOAD");
+      throw Exception("Ошибка загрузки");
     }
   }
 

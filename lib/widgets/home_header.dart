@@ -12,10 +12,6 @@ class HomeHeader extends StatelessWidget {
         Container(
           height: 200.0,
           decoration: BoxDecoration(
-            // boxShadow: [
-            //   BoxShadow(blurRadius: 5.0, color: Theme.of(context).primaryColor),
-            //   BoxShadow(blurRadius: 10.0, color: Theme.of(context).accentColor),
-            // ],
             gradient: LinearGradient(
               colors: [
                 Theme.of(context).primaryColor,
@@ -37,17 +33,20 @@ class HomeHeader extends StatelessWidget {
           ),
         ),
         Positioned(
+          right: 50.0,
           bottom: 50.0,
           left: 50.0,
-          child: FutureBuilder(
-            future: UserRepository.getUserName(),
-            builder: (context, AsyncSnapshot<String> snapshot) {
-              if (snapshot.hasData) {
-                return Text("Welcome, ${snapshot.data}",
-                    style: TextStyle(fontSize: 25.0));
-              } else
-                return Text("");
-            },
+          child: Container(
+            child: FutureBuilder(
+              future: UserRepository.getUserName(),
+              builder: (context, AsyncSnapshot<String> snapshot) {
+                if (snapshot.hasData) {
+                  return Text("Приветствую, ${snapshot.data}",
+                      style: TextStyle(fontSize: 25.0));
+                } else
+                  return Text("");
+              },
+            ),
           ),
         ),
       ],

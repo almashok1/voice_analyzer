@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:voice_analyzer/model/audio_emoji.dart';
 import 'package:voice_analyzer/model/emojis_model.dart';
+import 'package:voice_analyzer/util/utils.dart';
 
 class RecordPredictions extends StatefulWidget {
   final String filePath;
@@ -33,10 +34,14 @@ class _RecordPredictionsState extends State<RecordPredictions> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Row(
-                children: prediction(audioEmoji),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.9,
+                child: Row(
+                  children: prediction(audioEmoji),
+                ),
               ),
               Wrap(
+                alignment: WrapAlignment.center,
                 children: _buildEmotionsData(audioEmoji),
               )
             ],
@@ -68,7 +73,7 @@ class _RecordPredictionsState extends State<RecordPredictions> {
                 ),
                 height: 40.0,
               ),
-              Text(key),
+              Text(emotionTranslate[key]),
             ],
           ),
         ),
@@ -115,6 +120,6 @@ class _RecordPredictionsState extends State<RecordPredictions> {
       _emotions[i.last][1] = i.first.last;
       lastValue = i.first.last;
     }
-    return list.isEmpty ? [Container(child: Text('No Data'))] : list;
+    return list.isEmpty ? [Container(child: Text('Нет данных'))] : list;
   }
 }

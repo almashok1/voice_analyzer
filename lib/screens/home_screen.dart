@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:file_picker/file_picker.dart';
@@ -8,13 +7,15 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:voice_analyzer/blocs/authentication_bloc/authentication_bloc.dart';
 import 'package:audio_recorder/audio_recorder.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:voice_analyzer/model/record_date.dart';
 import 'package:voice_analyzer/repository/user_repository.dart';
 import 'package:voice_analyzer/util/utils.dart';
 import 'package:voice_analyzer/widgets/home_header.dart';
 import 'package:path/path.dart' as path;
 import 'package:voice_analyzer/widgets/loading_indicator.dart';
+import 'package:provider/provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -34,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
+
     _animationController =
         AnimationController(vsync: this, duration: Duration(seconds: 2));
     _animationController.repeat(reverse: true);
@@ -41,13 +43,23 @@ class _HomeScreenState extends State<HomeScreen>
       ..addListener(() {
         setState(() {});
       });
+    
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+    if (await UserRepository.isFirstOpened())
+        ShowCaseWidget.of(context).startShowCase([
+          Provider.of<RecordDate>(context, listen: false).one,
+          Provider.of<RecordDate>(context, listen: false).two,
+          Provider.of<RecordDate>(context, listen: false).three,
+          Provider.of<RecordDate>(context, listen: false).four,
+        ]);
+      });
   }
 
   @override
   void dispose() {
     _stopWatchTimer.dispose();
-    _animationController.dispose();
     audioPlayer.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -57,7 +69,25 @@ class _HomeScreenState extends State<HomeScreen>
       color: Theme.of(context).backgroundColor,
       child: Column(
         children: <Widget>[
-          HomeHeader(bloc: BlocProvider.of<AuthenticationBloc>(context)),
+          Showcase(
+            showcaseBackgroundColor: Theme.of(context).textSelectionColor,
+            showArrow: true,
+            key: Provider.of<RecordDate>(context, listen: false).one,
+            shapeBorder: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            title: "Программа работает\nв фоновом режиме",
+            titleTextStyle: TextStyle(
+              color: Theme.of(context).primaryColor,
+              fontSize: 25.0,
+              fontWeight: FontWeight.w500,
+            ),
+            description: "Программа предназначена для\n" +
+                "отслеживания ваших эмоции.",
+            child: HomeHeader(
+              bloc: BlocProvider.of<AuthenticationBloc>(context),
+            ),
+          ),
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.max,
@@ -77,23 +107,33 @@ class _HomeScreenState extends State<HomeScreen>
                       SizedBox(
                         height: 30.0,
                       ),
-                      voiceRecorder,
+                      Showcase(
+                          key: Provider.of<RecordDate>(context, listen: false)
+                              .two,
+                          shapeBorder: CircleBorder(),
+                          description:
+                              "Вы можете зажав кнопку\nотправлять записи",
+                          child: voiceRecorder),
                     ],
                   ),
                 ),
-                Container(
-                  width: MediaQuery.of(context).size.width * 0.45,
-                  child: uploadButton,
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).textSelectionColor,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(15.0),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                            blurRadius: 10.0,
-                            color: Theme.of(context).textSelectionColor)
-                      ]),
+                Showcase(
+                  key: Provider.of<RecordDate>(context, listen: false).three,
+                  description: "Или можете\nзагружать записи",
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.45,
+                    child: uploadButton,
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).textSelectionColor,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(15.0),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                              blurRadius: 10.0,
+                              color: Theme.of(context).textSelectionColor)
+                        ]),
+                  ),
                 ),
               ],
             ),
@@ -106,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget get uploadButton {
     return FlatButton(
       onPressed: () async {
-        _askForPermissions();
+        askForPermissions();
         File file = await FilePicker.getFile(
           type: FileType.custom,
           allowedExtensions: ['mp3', 'wav', 'ogg', 'm4a'],
@@ -118,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen>
         newPath =
             path.join(newPath, createRecordPath() + path.extension(file.path));
         File newFile = file.copySync(newPath);
-        print(newFile.path);
         try {
           showDialog(
               context: context,
@@ -126,15 +165,15 @@ class _HomeScreenState extends State<HomeScreen>
               barrierDismissible: false);
           bool isLoaded = await apiConnection.sendToBackEnd(newFile.path);
           if (isLoaded) {
-            if (Navigator.of(context).canPop()) Navigator.of(context).pop();
-            Scaffold.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(
-                  content: Text("Successfully loaded, check it from the records"),
-                  backgroundColor: Colors.green,
-                ),
-              );
+            try {
+              Provider.of<RecordDate>(context, listen: false).emotionData =
+                  await ApiConnection().getAllRecords();
+              if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+              showSnackBar(context, Colors.green,
+                  "Загружено, проверьте в пункте статистики"); // successfully loaded
+            } catch (e) {
+              showErrorAlertDialog(context);
+            }
           }
         } on Exception catch (e) {
           if (Navigator.of(context).canPop()) Navigator.of(context).pop();
@@ -143,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen>
             builder: (context) {
               return AlertDialog(
                 backgroundColor: Theme.of(context).primaryColor,
-                title: Text('Error'),
+                title: Text('Ошибка'),
                 content: Text(e.toString()),
               );
             },
@@ -151,13 +190,24 @@ class _HomeScreenState extends State<HomeScreen>
         }
       },
       child: Text(
-        "Upload",
+        "Загрузить",
         style: TextStyle(
           color: Theme.of(context).backgroundColor,
           fontSize: 20.0,
         ),
       ),
     );
+  }
+
+  void showSnackBar(BuildContext context, Color color, String text) {
+    Scaffold.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(text),
+          backgroundColor: color,
+        ),
+      );
   }
 
   Widget get voiceTimer {
@@ -192,6 +242,9 @@ class _HomeScreenState extends State<HomeScreen>
           ],
         ),
       ),
+      onTap: () {
+        if (_isRecording) _stop();
+      },
       onLongPressStart: (_) {
         if (!_isRecording) _start();
       },
@@ -202,8 +255,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   _start([bool hasTimer = true]) async {
-    print(await UserRepository.getId());
-    await _askForPermissions();
+    await askForPermissions();
     if (hasTimer) _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
     if (await AudioRecorder.hasPermissions) {
       final externalPath = await getExternalStorageDirectory();
@@ -218,13 +270,12 @@ class _HomeScreenState extends State<HomeScreen>
       _isRecording = isRecording;
       _stopWatchTimer.onExecute.add(StopWatchExecute.start);
     } else {
-      print('no permission');
+      showSnackBar(context, Theme.of(context).accentColor,
+          'Пользователь отказал доступ к разрешению');
     }
   }
 
-  static Future<Map<Permission, PermissionStatus>> _askForPermissions() async {
-    return await [Permission.microphone, Permission.storage].request();
-  }
+  
 
   format(Duration d) => d.toString().split('.').first.padLeft(8, "0");
 
@@ -233,7 +284,6 @@ class _HomeScreenState extends State<HomeScreen>
     bool isRecording = await AudioRecorder.isRecording;
     _isRecording = isRecording;
     if (hasTimer) _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
-    print('SENDING');
     try {
       showDialog(
           context: context,
@@ -242,14 +292,14 @@ class _HomeScreenState extends State<HomeScreen>
       bool isLoaded = await apiConnection.sendToBackEnd(recording.path);
       if (isLoaded) {
         if (Navigator.of(context).canPop()) Navigator.of(context).pop();
-        Scaffold.of(context)
-          ..hideCurrentSnackBar()
-          ..showSnackBar(
-            SnackBar(
-              content: Text("Successfully loaded, check it from the records"),
-              backgroundColor: Colors.green,
-            ),
-          );
+        showSnackBar(context, Colors.green,
+            "Загружено, проверьте в пункте статистики"); // successfully loaded
+        try {
+          Provider.of<RecordDate>(context).emotionData =
+              await ApiConnection().getAllRecords();
+        } catch (e) {
+          showErrorAlertDialog(context);
+        }
       }
     } on Exception catch (e) {
       if (Navigator.of(context).canPop()) Navigator.of(context).pop();
@@ -258,8 +308,10 @@ class _HomeScreenState extends State<HomeScreen>
         builder: (context) {
           return AlertDialog(
             backgroundColor: Theme.of(context).primaryColor,
-            title: Text('Error'),
-            content: Text(e.toString()),
+            title: Text('Ошибка'),
+            content: Text(e.toString().contains("Dio")
+                ? "Ошибка интернета"
+                : e.toString()),
           );
         },
       );

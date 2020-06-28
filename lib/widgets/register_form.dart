@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:voice_analyzer/blocs/authentication_bloc/authentication_bloc.dart';
 import 'package:voice_analyzer/blocs/register_bloc/register_bloc.dart';
 import 'package:voice_analyzer/repository/user_repository.dart';
 import 'package:voice_analyzer/util/utils.dart';
@@ -44,9 +43,6 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
           );
         }
-        // if (state is RegisteredSuccesfully) {
-        //   Navigator.of(context).pop();
-        // }
       },
       child: BlocBuilder<RegisterBloc, RegisterState>(
         builder: (context, state) {
@@ -62,14 +58,14 @@ class _RegisterFormState extends State<RegisterForm> {
                     TextFormField(
                       validator: (value) {
                         if (value.isEmpty) {
-                          return 'Enter some text';
+                          return 'Введите имя пользователя';
                         }
                         if (value.length < 4)
-                          return 'Enter a username length longer than 3';
+                          return 'Имя пользователя должен содержать не менее 3 символов';
                         return null;
                       },
                       decoration: InputDecoration(
-                        labelText: 'username',
+                        labelText: 'имя пользователя',
                         icon: Icon(Icons.person),
                       ),
                       controller: _usernameController,
@@ -77,11 +73,11 @@ class _RegisterFormState extends State<RegisterForm> {
                     TextFormField(
                       validator: (value) {
                         if (!validateEmail(value))
-                          return 'Enter a correct email address';
+                          return 'Введите правильный адрес электронной почты';
                         return null;
                       },
                       decoration: InputDecoration(
-                        labelText: 'email',
+                        labelText: 'электронная почта',
                         icon: Icon(Icons.email),
                       ),
                       controller: _emailController,
@@ -89,11 +85,11 @@ class _RegisterFormState extends State<RegisterForm> {
                     TextFormField(
                       validator: (value) {
                         if (value.length < 8)
-                          return 'Password length must be loger than 8';
+                          return 'Пароль должен содержать не менее 8 символов';
                         return null;
                       },
                       decoration: InputDecoration(
-                          labelText: 'password', icon: Icon(Icons.security)),
+                          labelText: 'пароль', icon: Icon(Icons.security)),
                       controller: _passwordController,
                       obscureText: true,
                     ),
@@ -107,7 +103,7 @@ class _RegisterFormState extends State<RegisterForm> {
                               ? _onRegisterButtonPressed
                               : null,
                           child: Text(
-                            'Register',
+                            'Зарегистрировать',
                             style: TextStyle(
                               fontSize: 20.0,
                             ),

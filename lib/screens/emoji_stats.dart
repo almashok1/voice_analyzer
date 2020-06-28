@@ -13,6 +13,8 @@ import 'package:voice_analyzer/widgets/loading_indicator.dart';
 import 'package:voice_analyzer/widgets/record_list.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:showcaseview/showcaseview.dart';
+import 'package:voice_analyzer/widgets/slide_page_transition.dart';
 
 class EmojiStats extends StatefulWidget {
   @override
@@ -47,37 +49,43 @@ class _EmojiStatsState extends State<EmojiStats> {
           child: AppBar(
             centerTitle: true,
             flexibleSpace: SafeArea(
-              child: Center(
-                child: FlatButton(
-                  padding: const EdgeInsets.all(12.0),
-                  color: Theme.of(context).backgroundColor.withOpacity(0.17),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  onPressed: () async {
-                    final List<DateTime> picked =
-                        await DateRangePicker.showDatePicker(
-                      context: context,
-                      initialFirstDate: recordDate.firstDate,
-                      initialLastDate: recordDate.lastDate,
-                      firstDate: DateTime(2019),
-                      lastDate: DateTime.now(),
-                    ).catchError((_) {});
-                    if (picked != null) {
-                      if (picked.length < 2) {
-                        recordDate.setDates(picked[0], picked[0]);
-                      } else {
-                        recordDate.setDates(picked[0], picked.last);
+              child: Showcase(
+                description:
+                    'Вы можете отфильтровать\nзаписи по диапозонам нажав здесь',
+                key: recordDate.six,
+                child: Center(
+                  child: FlatButton(
+                    padding: const EdgeInsets.all(12.0),
+                    color: Theme.of(context).backgroundColor.withOpacity(0.17),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    onPressed: () async {
+                      final List<DateTime> picked =
+                          await DateRangePicker.showDatePicker(
+                        context: context,
+                        initialFirstDate: recordDate.firstDate,
+                        initialLastDate: recordDate.lastDate,
+                        firstDate: DateTime(2019),
+                        lastDate: DateTime.now(),
+                      ).catchError((_) {});
+                      if (picked != null) {
+                        if (picked.length < 2) {
+                          recordDate.setDates(picked[0], picked[0]);
+                        } else {
+                          recordDate.setDates(picked[0], picked.last);
+                        }
                       }
-                    }
-                  },
-                  child: Text(
-                    dateToNormalString(recordDate.firstDate) +
-                        (recordDate.lastDate == recordDate.firstDate ||
-                                recordDate.lastDate == null
-                            ? ""
-                            : " - " + dateToNormalString(recordDate.lastDate)),
-                    style: TextStyle(fontSize: 22.0),
+                    },
+                    child: Text(
+                      dateToNormalString(recordDate.firstDate) +
+                          (recordDate.lastDate == recordDate.firstDate ||
+                                  recordDate.lastDate == null
+                              ? ""
+                              : " - " +
+                                  dateToNormalString(recordDate.lastDate)),
+                      style: TextStyle(fontSize: 22.0),
+                    ),
                   ),
                 ),
               ),
@@ -101,7 +109,7 @@ class _EmojiStatsState extends State<EmojiStats> {
                   ..showSnackBar(
                     SnackBar(
                       backgroundColor: Colors.red,
-                      content: Text("Failed to load emotions"),
+                      content: Text("Не смог загрузить эмоции"),
                     ),
                   );
               }
@@ -113,50 +121,56 @@ class _EmojiStatsState extends State<EmojiStats> {
                   return Column(
                     children: <Widget>[
                       Expanded(
-                        child:
-                            _buildRecordList(Provider.of<RecordDate>(context)),
+                        child: Showcase(
+                            description:
+                                "У вас пока нету записей!\nВы можете анализировать\nсвои записи",
+                            key: recordDate.seven,
+                            child: _buildRecordList(recordDate)),
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.5,
-                          child: FlatButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-                            color: Theme.of(context).textSelectionColor,
-                            child: Text("Statistics",
-                                style: TextStyle(
-                                    fontSize: 18.0, color: Colors.black)),
-                            onPressed: () {
-                              if (recordDate == null ||
-                                  recordDate.emotionData == null ||
-                                  recordDate.emotionData.isEmpty) {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => Scaffold(
-                                      backgroundColor:
-                                          Theme.of(context).backgroundColor,
-                                      body: Center(
-                                        child: Text("No Records yet",
-                                            style: TextStyle(fontSize: 25.0)),
+                        child: Showcase(
+                          description:
+                              "Вы можете просматривать\nсвои статистики\n",
+                          key: recordDate.eight,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            child: FlatButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20.0),
+                              ),
+                              color: Theme.of(context).textSelectionColor,
+                              child: Text("Статистика",
+                                  style: TextStyle(
+                                      fontSize: 18.0, color: Colors.black)),
+                              onPressed: () {
+                                if (recordDate == null ||
+                                    recordDate.emotionData == null ||
+                                    recordDate.emotionData.isEmpty) {
+                                  Navigator.of(context).push(
+                                    slidePageTransition(Scaffold(
+                                        backgroundColor:
+                                            Theme.of(context).backgroundColor,
+                                        body: Center(
+                                          child: Text("Пока нет записей",
+                                              style: TextStyle(fontSize: 25.0)),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              } else
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (incontext) =>
-                                        ChangeNotifierProvider.value(
-                                      value: recordDate,
-                                      builder: (context, _) {
-                                        return AllStats();
-                                      },
+                                  );
+                                } else
+                                  Navigator.of(context).push(
+                                    slidePageTransition(
+                                      ChangeNotifierProvider.value(
+                                        value: recordDate,
+                                        builder: (context, _) {
+                                          return AllStats();
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                );
-                            },
+                                  );
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -200,7 +214,7 @@ class _EmojiStatsState extends State<EmojiStats> {
         if (snapshot.data == null)
           return Stack(children: [
             Center(
-              child: Text('No Records', style: TextStyle(fontSize: 25.0)),
+              child: Text('Нет записей', style: TextStyle(fontSize: 25.0)),
             ),
             ListView(),
           ]);
